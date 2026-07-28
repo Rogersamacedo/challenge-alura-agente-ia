@@ -5,17 +5,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node src/agente.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@google/genai": "^2.13.0",
+    "@google/genai": "^0.1.2",
     "csv-parser": "^3.2.1"
   }
 }
-"scripts": {
-  "start": "node src/agente.js",
-  "test": "echo \"Error: no test specified\" && exit 1"
-},
