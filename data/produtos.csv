@@ -1,0 +1,6 @@
+id,produto,categoria,preco,estoque,avaliacao_clientes,politica_garantia
+1,Smartphone Galaxy X,Celulares,4500.00,15,4.8,12 meses contra defeitos de fabricacao. Nao cobre tela quebrada por queda.
+2,Notebook Pro 14,Computadores,7200.00,8,4.5,24 meses de garantia oficial. Inclui suporte tecnico remoto gratuito.
+3,Fone Bluetooth Bass+,Audio,350.00,50,4.2,6 meses. Troca imediata em caso de mau funcionamento do bluetooth.
+4,Carregador Rapido 30W,Acessorios,120.00,0,4.0,3 meses de garantia legal. Nao realizamos troca por uso de cabos compativeis paralelos.
+5,Smartwatch Sport V2,Vestiveis,1200.00,22,4.6,12 meses. Resistente a agua mas a garantia nao cobre imersao em agua salgada.
