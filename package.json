@@ -3,9 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "description": "",
-  "main": "src/agente.js",
+  "main": "agente.js",
   "scripts": {
-    "start": "node src/agente.js"
+    "start": "node agente.js"
   },
   "keywords": [],
   "author": "",
