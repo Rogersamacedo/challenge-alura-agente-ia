@@ -3,10 +3,9 @@
   "type": "module",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "src/agente.js",
   "scripts": {
-    "start": "node src/agente.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node src/agente.js"
   },
   "keywords": [],
   "author": "",
