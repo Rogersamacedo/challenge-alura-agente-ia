@@ -27,12 +27,10 @@ async function executarAgente(perguntaUsuario) {
         // Carrega o contexto dos produtos
         const contextoProdutos = await carregarDadosCSV(caminhoCSV);
         
-        // Verifica se a chave de API está presente no sistema do Render
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) {
             console.log("⚠️ AVISO CRÍTICO: A variável OPENROUTER_API_KEY está vazia ou indefinida no Render!");
-        } else {
-            console.log(`🔑 Chave encontrada! Começa com: ${apiKey.substring(0, 7)}...`);
+            return;
         }
 
         // Estrutura o Prompt do Sistema instruindo o comportamento do Agente
@@ -46,17 +44,15 @@ async function executarAgente(perguntaUsuario) {
             `3. Nunca invente dados de estoque, preços ou políticas de garantia.\n` +
             `4. Se o estoque estiver zerado (0), avise que o produto está esgotado.`;
 
-        // Faz a chamada HTTP direta para o endpoint correto da API
-        const response = await fetch("https://openrouter.ai", {
+        // Faz a chamada HTTP utilizando o modelo universal gratuito do OpenRouter
+        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
-                "Content-Type": "application/json",
-                "HTTP-Referer": "https://render.com", // Exigido por algumas rotas do OpenRouter
-                "X-Title": "Desafio Alura Agente"
+                "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "google/gemini-1.5-flash",
+                model: "openrouter/free", // Alvo corrigido para o catálogo de uso livre
                 messages: [
                     { role: 'system', content: promptSistema },
                     { role: 'user', content: perguntaUsuario }
@@ -64,25 +60,24 @@ async function executarAgente(perguntaUsuario) {
             })
         });
 
-        // Captura o texto puro primeiro para evitar quebrar o JSON se vier HTML
         const textoPuro = await response.text();
 
-        if (textoPuro.startsWith("<!DOCTYPE")) {
-            console.log("❌ O OpenRouter ainda recusou a requisição e devolveu uma página de login HTML.");
+        // Se retornar HTML, o log vai nos avisar o status HTTP real recebido
+        if (textoPuro.trim().startsWith("<!DOCTYPE")) {
+            console.log(`❌ O servidor recusou com Status HTTP: ${response.status}. Verifique se a sua chave OpenRouter possui saldo ou se está ativa.`);
             return;
         }
 
-        // Se não for HTML, transforma com segurança em JSON
         const data = JSON.parse(textoPuro);
 
-        // Verifica se a resposta contém as escolhas da IA de forma segura
+        // Tratamento da estrutura padrão de array do OpenRouter
         if (data && data.choices && data.choices[0] && data.choices[0].message) {
             const respostaTexto = data.choices[0].message.content;
             console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
             return respostaTexto;
         } else {
             console.log("Resposta inesperada do servidor:", JSON.stringify(data));
-            throw new Error("A API não retornou o JSON no formato esperado.");
+            throw new Error("A API não retornou o formato esperado.");
         }
 
     } catch (error) {
