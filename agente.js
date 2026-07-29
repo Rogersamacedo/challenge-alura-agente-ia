@@ -41,18 +41,17 @@ async function executarAgente(perguntaUsuario) {
                 `1. Seja educado, profissional e direto.\n` +
                 `2. Se o produto não estiver na base de dados, diga gentilmente que não possui essa informação.`;
 
-            // Monta o corpo da requisição no formato exato que o Google exige
             const dadosCorpo = JSON.stringify({
                 contents: [{
                     parts: [{ text: `${promptSistema}\n\nPergunta do Cliente: ${perguntaUsuario}` }]
                 }]
             });
 
-            // Configurações da conexão HTTPS nativa (CORRIGIDO: sem os caracteres extras no hostname)
+            // CORREÇÃO CIRÚRGICA: Alterado para o modelo estável atual gemini-2.0-flash
             const opcoes = {
                 hostname: 'generativelanguage.googleapis.com',
                 port: 443,
-                path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                path: `/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -60,7 +59,6 @@ async function executarAgente(perguntaUsuario) {
                 }
             };
 
-            // Abre o canal de comunicação direta com o Google
             const requisicao = https.request(opcoes, (resposta) => {
                 let dadosRecebidos = '';
 
@@ -72,7 +70,6 @@ async function executarAgente(perguntaUsuario) {
                     try {
                         const data = JSON.parse(dadosRecebidos);
 
-                        // Mapeia com precisão a estrutura de resposta do Google Gemini
                         if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
                             const respostaTexto = data.candidates[0].content.parts[0].text;
                             resolveReject(respostaTexto);
@@ -95,7 +92,6 @@ async function executarAgente(perguntaUsuario) {
                 resolveReject("Erro de conexão com o servidor da IA.");
             });
 
-            // Envia os dados e fecha a requisição de saída
             requisicao.write(dadosCorpo);
             requisicao.end();
 
