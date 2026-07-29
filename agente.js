@@ -1,14 +1,15 @@
-import fs from 'fs';
-import csv from 'csv-parser';
-import { OpenAI } from "openai";
+// 1. Importações usando o padrão CommonJS (compatível com seu Node.js)
+const fs = require('fs');
+const csv = require('csv-parser');
+const { OpenAI } = require("openai");
 
-// 1. Configura o acesso com a URL oficial do OpenRouter
+// 2. Configura o acesso com a URL oficial do OpenRouter
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai",
   apiKey: process.env.OPENROUTER_API_KEY, 
 });
 
-// 2. Função para ler o arquivo CSV e transformá-lo em texto legível para a IA
+// 3. Função para ler o arquivo CSV e transformá-lo em texto legível para a IA
 function carregarDadosCSV(caminhoArquivo) {
     return new Promise((resolve, reject) => {
         const linhas = [];
@@ -26,7 +27,7 @@ function carregarDadosCSV(caminhoArquivo) {
     });
 }
 
-// 3. Função principal do Agente de IA integrada ao OpenRouter
+// 4. Função principal do Agente de IA integrada ao OpenRouter
 async function executarAgente(perguntaUsuario) {
     try {
         const caminhoCSV = './data/produtos.csv';
@@ -54,18 +55,24 @@ async function executarAgente(perguntaUsuario) {
             ],
         });
 
-         if (response && response.choices && response.choices[0]) {
+        // Verificação segura do retorno da API
+        if (response && response.choices && response.choices[0]) {
             const respostaTexto = response.choices[0].message.content;
             console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
             return respostaTexto;
         } else {
-            throw new Error("A API do OpenRouter não retornou nenhuma escolha válida.");
+            throw new Error("A API do OpenRouter não retornou uma resposta válida.");
         }
+
+    } catch (error) {
+        console.error('Erro ao executar o agente:', error.message || error);
+    }
+}
 
 // --- SIMULAÇÃO DE PERGUNTA PARA TESTE ---
 const perguntaTeste = "O fone de ouvido bluetooth tem garantia se o bluetooth parar de funcionar?";
 console.log(`👤 Pergunta: "${perguntaTeste}"`);
 executarAgente(perguntaTeste);
 
-// Exporta a função para o servidor principal
-export { executarAgente };
+// 5. Exportação usando o padrão CommonJS
+module.exports = { executarAgente };
