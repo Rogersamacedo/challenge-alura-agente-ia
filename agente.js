@@ -46,7 +46,7 @@ async function executarAgente(perguntaUsuario) {
 
         // Chama o modelo correto do Gemini (gemini-2.5-flash é ideal para agentes rápidos)
         const response = await ai.models.generateContent({
-            model:'gemini-2.0-flash',
+            model:'gemini-1.5-flash',
             contents: [
                 { role: 'user', parts: [{ text: `${promptSistema}\n\nPergunta do Cliente: ${perguntaUsuario}` }] }
             ]
