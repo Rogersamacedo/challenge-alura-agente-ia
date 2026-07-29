@@ -55,13 +55,17 @@ async function executarAgente(perguntaUsuario) {
         });
 
         // Verificação segura do retorno da API com o OpenRouter (padrão array choices)
-        if (response && response.choices && response.choices[0]) {
+                // Verificação segura do retorno da API com o OpenRouter usando o índice [0]
+        if (response && response.choices && response.choices[0] && response.choices[0].message) {
             const respostaTexto = response.choices[0].message.content;
             console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
             return respostaTexto;
         } else {
-            throw new Error("A API do OpenRouter não retornou uma resposta válida.");
+            // Se cair aqui, vamos imprimir o objeto real para entender o que o OpenRouter respondeu
+            console.log("Resposta bruta recebida do OpenRouter:", JSON.stringify(response));
+            throw new Error("A API do OpenRouter não retornou uma resposta válida no formato choices[0].");
         }
+
 
     } catch (error) {
         console.error('Erro ao executar o agente:', error.message || error);
