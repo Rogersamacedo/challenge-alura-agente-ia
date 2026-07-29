@@ -23,13 +23,11 @@ function carregarDadosCSV(caminhoArquivo) {
 async function executarAgente(perguntaUsuario) {
     try {
         const caminhoCSV = './data/produtos.csv';
-                
-        // Carrega o contexto dos produtos
         const contextoProdutos = await carregarDadosCSV(caminhoCSV);
         
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) {
-            console.log("⚠️ AVISO CRÍTICO: A variável OPENROUTER_API_KEY está vazia ou indefinida no Render!");
+            console.error("⚠️ AVISO CRÍTICO: A variável OPENROUTER_API_KEY está vazia!");
             return "Erro de configuração no servidor.";
         }
 
@@ -44,7 +42,7 @@ async function executarAgente(perguntaUsuario) {
             `3. Nunca invente dados de estoque, preços ou políticas de garantia.\n` +
             `4. Se o estoque estiver zerado (0), avise que o produto está esgotado.`;
 
-        // Faz a chamada HTTP utilizando o modelo universal gratuito do OpenRouter
+        // Faz a chamada HTTP utilizando o Llama 3 Gratuito (Muito mais estável para JSON)
         const response = await fetch("https://openrouter.ai", {
             method: "POST",
             headers: {
@@ -52,7 +50,7 @@ async function executarAgente(perguntaUsuario) {
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openrouter/free",
+                model: "meta-llama/llama-3-8b-instruct:free", // Modelo alterado para estabilidade
                 messages: [
                     { role: 'system', content: promptSistema },
                     { role: 'user', content: perguntaUsuario }
@@ -62,27 +60,34 @@ async function executarAgente(perguntaUsuario) {
 
         const textoPuro = await response.text();
 
+        // Evita que o JSON.parse quebre se a resposta vier vazia do servidor
+        if (!textoPuro || textoPuro.trim() === "") {
+            console.error("❌ O servidor do OpenRouter retornou uma resposta vazia.");
+            return "O servidor de IA demorou para responder. Por favor, tente novamente.";
+        }
+
         if (textoPuro.trim().startsWith("<!DOCTYPE")) {
-            console.log(`❌ O servidor recusou com Status HTTP: ${response.status}.`);
-            return "Desculpe, o serviço de IA está temporariamente indisponível.";
+            console.error(`❌ Servidor recusou com HTML. Status: ${response.status}`);
+            return "Serviço de IA indisponível temporariamente.";
         }
 
         const data = JSON.parse(textoPuro);
 
-        // CORREÇÃO AQUI: Verificação correta usando o índice [0] do array choices
+        // Extração dos dados do JSON
         if (data && data.choices && data.choices[0] && data.choices[0].message) {
-            const respostaTexto = data.choices[0].message.content;
-            return respostaTexto;
+            return data.choices[0].message.content;
+        } else if (data && data.error) {
+            console.error("❌ Erro da API do OpenRouter:", data.error.message);
+            return `Erro da API: ${data.error.message}`;
         } else {
-            console.log("Formato de JSON inesperado:", JSON.stringify(data));
-            throw new Error("A API não retornou o formato esperado de choices.");
+            console.error("❌ Formato JSON desconhecido:", textoPuro);
+            return "Erro no formato de resposta da IA.";
         }
 
     } catch (error) {
-        console.error('Erro ao executar o agente:', error.message || error);
+        console.error('💥 Falha fatal no agente:', error.message || error);
         return "Houve um erro ao processar sua resposta.";
     }
 }
 
-// 3. Exportação usando o padrão ES Modules
 export { executarAgente };
