@@ -1,21 +1,13 @@
 {
-  "name": "agente-alura",
-  "type": "module",
+  "name": "challenge-alura-agente-ia",
   "version": "1.0.0",
-  "description": "",
-  "main": "agente.js",
+  "type": "module",
   "scripts": {
-    "start": "node agente.js"
+    "start": "node app.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
   "dependencies": {
-    "@google/genai": "latest",
-    "csv-parser": "^3.2.1",
-    "openai": "^7.1.0"
+    "csv-parser": "^3.1.2",
+    "express": "^4.21.2",
+    "openai": "^4.85.4"
   }
 }
-  "scripts": {
-  "start": "node app.js"
-},
