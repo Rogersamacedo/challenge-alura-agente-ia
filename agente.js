@@ -47,11 +47,11 @@ async function executarAgente(perguntaUsuario) {
                 }]
             });
 
-            // MODELO REVISADO: gemini-2.5-flash-lite é a versão oficial livre de bloqueios
+            // ALVO ROBUSTO: gemini-flash-latest escolhe automaticamente a versão correta do sistema
             const opcoes = {
                 hostname: 'generativelanguage.googleapis.com',
                 port: 443,
-                path: `/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
+                path: `/v1beta/models/gemini-flash-latest:generateContent?key=${apiKey}`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
