@@ -12,6 +12,7 @@
   "license": "ISC",
   "dependencies": {
     "@google/genai": "latest",
-    "csv-parser": "^3.2.1"
+    "csv-parser": "^3.2.1",
+    "openai": "^7.1.0"
   }
 }
