@@ -54,14 +54,13 @@ async function executarAgente(perguntaUsuario) {
             ],
         });
 
-        const respostaTexto = response.choices[0].message.content;
-        console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
-        return respostaTexto;
-
-    } catch (error) {
-        console.error('Erro ao executar o agente:', error.message || error);
-    }
-}
+         if (response && response.choices && response.choices[0]) {
+            const respostaTexto = response.choices[0].message.content;
+            console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
+            return respostaTexto;
+        } else {
+            throw new Error("A API do OpenRouter não retornou nenhuma escolha válida.");
+        }
 
 // --- SIMULAÇÃO DE PERGUNTA PARA TESTE ---
 const perguntaTeste = "O fone de ouvido bluetooth tem garantia se o bluetooth parar de funcionar?";
