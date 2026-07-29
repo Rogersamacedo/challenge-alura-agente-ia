@@ -47,11 +47,11 @@ async function executarAgente(perguntaUsuario) {
                 }]
             });
 
-            // CORREÇÃO CIRÚRGICA: Alterado para o modelo estável atual gemini-2.0-flash
+            // ALTERAÇÃO DEFINITIVA: Mudado para o modelo gemini-2.5-flash com cota livre
             const opcoes = {
                 hostname: 'generativelanguage.googleapis.com',
                 port: 443,
-                path: `/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`,
+                path: `/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
