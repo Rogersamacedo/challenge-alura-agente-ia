@@ -35,3 +35,10 @@ curl -X POST "https://onrender.com/chat" \
 
 ## 🧑‍💻 Autor
 Desenvolvido por Rogério durante o desafio Alura de Inteligência Artificial.
+## 📸 Evidências de Funcionamento
+
+### 1. Sucesso na resposta da API (Terminal local via cURL):
+![Print do Terminal](print-terminal.png)
+
+### 2. Deploy concluído com sucesso e ativo na Nuvem (Render Live):
+![Print do Render](print-render.png)
