@@ -2,7 +2,7 @@ import fs from 'fs';
 import csv from 'csv-parser';
 import { OpenAI } from "openai";
 
-// 1. Configura o acesso com a URL oficial do OpenRouter
+// 1. Configura o acesso com a URL oficial e completa da API do OpenRouter
 const openai = new OpenAI({
   baseURL: "https://openrouter.ai",
   apiKey: process.env.OPENROUTER_API_KEY, 
@@ -54,18 +54,15 @@ async function executarAgente(perguntaUsuario) {
             ],
         });
 
-        // Verificação segura do retorno da API com o OpenRouter (padrão array choices)
-                // Verificação segura do retorno da API com o OpenRouter usando o índice [0]
+        // Verificação segura do retorno da API com o OpenRouter usando o formato correto
         if (response && response.choices && response.choices[0] && response.choices[0].message) {
             const respostaTexto = response.choices[0].message.content;
             console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
             return respostaTexto;
         } else {
-            // Se cair aqui, vamos imprimir o objeto real para entender o que o OpenRouter respondeu
-            console.log("Resposta bruta recebida do OpenRouter:", JSON.stringify(response));
-            throw new Error("A API do OpenRouter não retornou uma resposta válida no formato choices[0].");
+            console.log("Resposta inesperada recebida:", JSON.stringify(response));
+            throw new Error("A API não retornou o formato esperado.");
         }
-
 
     } catch (error) {
         console.error('Erro ao executar o agente:', error.message || error);
@@ -77,5 +74,5 @@ const perguntaTeste = "O fone de ouvido bluetooth tem garantia se o bluetooth pa
 console.log(`👤 Pergunta: "${perguntaTeste}"`);
 executarAgente(perguntaTeste);
 
-// 4. Exportação usando o padrão ES Modules (compatível com seu "type": "module")
+// 4. Exportação usando o padrão ES Modules
 export { executarAgente };
