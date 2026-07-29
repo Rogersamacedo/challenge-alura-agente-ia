@@ -1,14 +1,7 @@
 import fs from 'fs';
 import csv from 'csv-parser';
-import { OpenAI } from "openai";
 
-// 1. Configura o acesso com a URL oficial e completa da API do OpenRouter
-const openai = new OpenAI({
-  baseURL: "https://openrouter.ai",
-  apiKey: process.env.OPENROUTER_API_KEY, 
-});
-
-// 2. Função para ler o arquivo CSV e transformá-lo em texto legível para a IA
+// 1. Função para ler o arquivo CSV e transformá-lo em texto legível para a IA
 function carregarDadosCSV(caminhoArquivo) {
     return new Promise((resolve, reject) => {
         const linhas = [];
@@ -26,7 +19,7 @@ function carregarDadosCSV(caminhoArquivo) {
     });
 }
 
-// 3. Função principal do Agente de IA integrada ao OpenRouter
+// 2. Função principal do Agente de IA usando HTTP Fetch direto para o OpenRouter
 async function executarAgente(perguntaUsuario) {
     try {
         const caminhoCSV = './data/produtos.csv';
@@ -45,23 +38,33 @@ async function executarAgente(perguntaUsuario) {
             `3. Nunca invente dados de estoque, preços ou políticas de garantia.\n` +
             `4. Se o estoque estiver zerado (0), avise que o produto está esgotado.`;
 
-        // Chama o modelo do OpenRouter com os parâmetros corretos
-        const response = await openai.chat.completions.create({
-            model: "google/gemini-1.5-flash", 
-            messages: [
-                { role: 'system', content: promptSistema },
-                { role: 'user', content: perguntaUsuario }
-            ],
+        // Faz a chamada HTTP direta para o endpoint correto da API
+        const response = await fetch("https://openrouter.ai", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${process.env.OPENROUTER_API_KEY}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({
+                model: "google/gemini-1.5-flash",
+                messages: [
+                    { role: 'system', content: promptSistema },
+                    { role: 'user', content: perguntaUsuario }
+                ]
+            })
         });
 
-        // Verificação segura do retorno da API com o OpenRouter usando o formato correto
-        if (response && response.choices && response.choices[0] && response.choices[0].message) {
-            const respostaTexto = response.choices[0].message.content;
+        // Transforma a resposta em JSON
+        const data = await response.json();
+
+        // Verifica se a resposta contém as escolhas da IA de forma segura
+        if (data && data.choices && data.choices[0] && data.choices[0].message) {
+            const respostaTexto = data.choices[0].message.content;
             console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
             return respostaTexto;
         } else {
-            console.log("Resposta inesperada recebida:", JSON.stringify(response));
-            throw new Error("A API não retornou o formato esperado.");
+            console.log("Resposta inesperada do servidor:", JSON.stringify(data));
+            throw new Error("A API não retornou o JSON no formato esperado.");
         }
 
     } catch (error) {
@@ -74,5 +77,5 @@ const perguntaTeste = "O fone de ouvido bluetooth tem garantia se o bluetooth pa
 console.log(`👤 Pergunta: "${perguntaTeste}"`);
 executarAgente(perguntaTeste);
 
-// 4. Exportação usando o padrão ES Modules
+// 3. Exportação usando o padrão ES Modules
 export { executarAgente };
