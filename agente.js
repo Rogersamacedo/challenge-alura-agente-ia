@@ -20,7 +20,7 @@ function carregarDadosCSV(caminhoArquivo) {
     });
 }
 
-// 2. Função principal do Agente de IA usando HTTPS Nativo (À prova de falhas de rede)
+// 2. Função principal do Agente de IA usando HTTPS Nativo
 async function executarAgente(perguntaUsuario) {
     return new Promise(async (resolveReject, rejectFn) => {
         try {
@@ -48,9 +48,9 @@ async function executarAgente(perguntaUsuario) {
                 }]
             });
 
-            // Configurações da conexão HTTPS nativa
+            // Configurações da conexão HTTPS nativa (CORRIGIDO: sem os caracteres extras no hostname)
             const opcoes = {
-                hostname: '://googleapis.com',
+                hostname: 'generativelanguage.googleapis.com',
                 port: 443,
                 path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
                 method: 'POST',
@@ -73,10 +73,10 @@ async function executarAgente(perguntaUsuario) {
                         const data = JSON.parse(dadosRecebidos);
 
                         // Mapeia com precisão a estrutura de resposta do Google Gemini
-                        if (data?.candidates?.[0]?.content?.parts?.[0]?.text) {
+                        if (data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0]) {
                             const respostaTexto = data.candidates[0].content.parts[0].text;
                             resolveReject(respostaTexto);
-                        } else if (data?.error) {
+                        } else if (data && data.error) {
                             console.error("❌ Erro da API Google:", data.error.message);
                             resolveReject(`Erro na IA: ${data.error.message}`);
                         } else {
@@ -107,4 +107,3 @@ async function executarAgente(perguntaUsuario) {
 }
 
 export { executarAgente };
-
