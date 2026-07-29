@@ -4,17 +4,17 @@ import csv from 'csv-parser';
 // 1. Função para ler o arquivo CSV e transformá-lo em texto legível para a IA
 function carregarDadosCSV(caminhoArquivo) {
     return new Promise((resolve, reject) => {
-        const linhas = [];
+        const lines = [];
         fs.createReadStream(caminhoArquivo)
             .pipe(csv())
             .on('data', (data) => {
-                linhas.push(
+                lines.push(
                     `ID: ${data.id} | Produto: ${data.produto} | Categoria: ${data.categoria} | ` +
                     `Preço: R$${data.preco} | Estoque: ${data.estoque} unidades | ` +
                     `Avaliação: ${data.avaliacao_clientes}/5 | Garantia: ${data.politica_garantia}`
                 );
             })
-            .on('end', () => resolve(linhas.join('\n')))
+            .on('end', () => resolve(lines.join('\n')))
             .on('error', (error) => reject(error));
     });
 }
@@ -30,7 +30,7 @@ async function executarAgente(perguntaUsuario) {
         const apiKey = process.env.OPENROUTER_API_KEY;
         if (!apiKey) {
             console.log("⚠️ AVISO CRÍTICO: A variável OPENROUTER_API_KEY está vazia ou indefinida no Render!");
-            return;
+            return "Erro de configuração no servidor.";
         }
 
         // Estrutura o Prompt do Sistema instruindo o comportamento do Agente
@@ -45,14 +45,14 @@ async function executarAgente(perguntaUsuario) {
             `4. Se o estoque estiver zerado (0), avise que o produto está esgotado.`;
 
         // Faz a chamada HTTP utilizando o modelo universal gratuito do OpenRouter
-        const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+        const response = await fetch("https://openrouter.ai", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${apiKey}`,
                 "Content-Type": "application/json"
             },
             body: JSON.stringify({
-                model: "openrouter/free", // Alvo corrigido para o catálogo de uso livre
+                model: "openrouter/free",
                 messages: [
                     { role: 'system', content: promptSistema },
                     { role: 'user', content: perguntaUsuario }
@@ -62,33 +62,25 @@ async function executarAgente(perguntaUsuario) {
 
         const textoPuro = await response.text();
 
-        // Se retornar HTML, o log vai nos avisar o status HTTP real recebido
         if (textoPuro.trim().startsWith("<!DOCTYPE")) {
-            console.log(`❌ O servidor recusou com Status HTTP: ${response.status}. Verifique se a sua chave OpenRouter possui saldo ou se está ativa.`);
-            return;
+            console.log(`❌ O servidor recusou com Status HTTP: ${response.status}.`);
+            return "Desculpe, o serviço de IA está temporariamente indisponível.";
         }
 
         const data = JSON.parse(textoPuro);
 
-        // Tratamento da estrutura padrão de array do OpenRouter
         if (data && data.choices && data.choices[0] && data.choices[0].message) {
             const respostaTexto = data.choices[0].message.content;
-            console.log('\n🤖 Resposta do Agente:\n', respostaTexto);
             return respostaTexto;
         } else {
-            console.log("Resposta inesperada do servidor:", JSON.stringify(data));
             throw new Error("A API não retornou o formato esperado.");
         }
 
     } catch (error) {
         console.error('Erro ao executar o agente:', error.message || error);
+        return "Houve um erro ao processar sua resposta.";
     }
 }
 
-// --- SIMULAÇÃO DE PERGUNTA PARA TESTE ---
-const perguntaTeste = "O fone de ouvido bluetooth tem garantia se o bluetooth parar de funcionar?";
-console.log(`👤 Pergunta: "${perguntaTeste}"`);
-executarAgente(perguntaTeste);
-
-// 3. Exportação usando o padrão ES Modules
+// 3. Exportação usando o padrão ES Modules (Sem rodar o teste automático no final)
 export { executarAgente };
