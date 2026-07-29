@@ -69,11 +69,13 @@ async function executarAgente(perguntaUsuario) {
 
         const data = JSON.parse(textoPuro);
 
+        // CORREÇÃO AQUI: Verificação correta usando o índice [0] do array choices
         if (data && data.choices && data.choices[0] && data.choices[0].message) {
             const respostaTexto = data.choices[0].message.content;
             return respostaTexto;
         } else {
-            throw new Error("A API não retornou o formato esperado.");
+            console.log("Formato de JSON inesperado:", JSON.stringify(data));
+            throw new Error("A API não retornou o formato esperado de choices.");
         }
 
     } catch (error) {
@@ -82,5 +84,5 @@ async function executarAgente(perguntaUsuario) {
     }
 }
 
-// 3. Exportação usando o padrão ES Modules (Sem rodar o teste automático no final)
+// 3. Exportação usando o padrão ES Modules
 export { executarAgente };
