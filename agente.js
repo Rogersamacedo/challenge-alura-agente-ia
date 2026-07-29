@@ -47,11 +47,11 @@ async function executarAgente(perguntaUsuario) {
                 }]
             });
 
-            // MODELO ATUALIZADO: gemini-1.5-flash é o modelo estável padrão para novos usuários
+            // MODELO REVISADO: gemini-2.5-flash-lite é a versão oficial livre de bloqueios
             const opcoes = {
                 hostname: 'generativelanguage.googleapis.com',
                 port: 443,
-                path: `/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+                path: `/v1beta/models/gemini-2.5-flash-lite:generateContent?key=${apiKey}`,
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
